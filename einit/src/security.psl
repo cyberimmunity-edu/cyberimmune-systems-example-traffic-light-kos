@@ -38,14 +38,14 @@ request src=traffic_light.ControlSystem
         grant()
 }
 
-/*
+/* Разрешены все комбинации кроме зеленый-зеленый*/
 request src=traffic_light.ControlSystem 
     dst=traffic_light.LightsGPIO 
     endpoint=lightsGpio.mode 
     method=FMode {
         assert (message.value != 0x404)        
 }
-*/
+
 
 request src=Einit {
     grant ()
