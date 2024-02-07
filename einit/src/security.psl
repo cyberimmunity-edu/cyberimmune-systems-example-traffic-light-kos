@@ -46,9 +46,9 @@ request src=traffic_light.ControlSystem
     endpoint=lightsGpio.mode 
     method=FMode {
         assert ((message.value < 0x404 && message.value != 0x206 && message.value != 0x20e)
-    || (message.value >= 0x900 && message.value < 0xc04 && message.value != 0xa06 && message.value != 0xa0e)
-    || message.value == 0x601 || message.value == 0x603 || message.value == 0x609 || message.value == 0x60a || message.value == 0x60b
-    || message.value == 0xe01 || message.value == 0xe03 || message.value == 0xe09 || message.value == 0xe0a || message.value == 0xe0b)
+        || (message.value >= 0x900 && message.value < 0xc04 && message.value != 0xa06 && message.value != 0xa0e)
+        || message.value == 0x601 || message.value == 0x603 || message.value == 0x609 || message.value == 0x60a || message.value == 0x60b
+        || message.value == 0xe01 || message.value == 0xe03 || message.value == 0xe09 || message.value == 0xe0a || message.value == 0xe0b)
 }
 
 
