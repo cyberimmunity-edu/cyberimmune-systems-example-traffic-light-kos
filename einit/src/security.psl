@@ -21,10 +21,11 @@ execute {
 }
 
 /* Request messages allowed. */
+/*
 request src=traffic_light.ControlSystem {
     grant ()
 }
-
+*/
 
 request src=traffic_light.ControlSystem dst=kl.core.Core {
     grant ()
@@ -38,12 +39,12 @@ request src=traffic_light.ControlSystem
         grant()
 }
 
-/* Разрешены все комбинации кроме зеленый-зеленый*/
+/* Разрешены все комбинации кроме зеленый-зеленый и зеленый-зеленый в комбинации с другими цветами*/
 request src=traffic_light.ControlSystem 
     dst=traffic_light.LightsGPIO 
     endpoint=lightsGpio.mode 
     method=FMode {
-        assert (message.value != 0x404)        
+        assert (message.value < 0x404 || (message.value >= 0x900 && message.value < 0xc04) || message.value == 0x601)        
 }
 
 
