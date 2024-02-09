@@ -1,6 +1,4 @@
-/* Security configuration of the "traffic light" example. */
-/* nk.basic._ is required for comparison operations support in policies, like != below */
-use nk.basic._
+/* Security configuration of the "echo" example. */
 
 /* Definition of the execute interface. */
 execute: kl.core.Execute
@@ -12,8 +10,9 @@ use nk.base._
 use EDL Einit
 use EDL kl.core.Core
 
-use EDL traffic_light.ControlSystem
-use EDL traffic_light.LightsGPIO
+use EDL echo.Client
+use EDL echo.Client2
+use EDL echo.Server
 
 /* Execution of entities allowed. */
 execute {
@@ -21,31 +20,18 @@ execute {
 }
 
 /* Request messages allowed. */
-request src=traffic_light.ControlSystem {
+request src=echo.Client {
     grant ()
 }
 
 
-request src=traffic_light.ControlSystem dst=kl.core.Core {
+request src=echo.Client2 dst=kl.core.Core {
     grant ()
 }
 
-
-request src=traffic_light.ControlSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpio.mode 
-    method=FMode {
-        grant()
+request src=echo.Client2 dst=echo.Server {
+    grant ()
 }
-
-/*
-request src=traffic_light.ControlSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpio.mode 
-    method=FMode {
-        assert (message.value != 0x404)        
-}
-*/
 
 request src=Einit {
     grant ()
@@ -55,7 +41,7 @@ request src=kl.core.Core {
     grant ()
 }
 
-request src=traffic_light.LightsGPIO dst=kl.core.Core {
+request src=echo.Server {
     grant ()
 }
 
@@ -64,15 +50,6 @@ request src=traffic_light.LightsGPIO dst=kl.core.Core {
 response {
     grant ()
 }
-
-/*
-response src=traffic_light.LightsGPIO 
-    dst=traffic_light.ControlSystem 
-    endpoint=lightsGpio.mode 
-    method=FMode {
-        assert (message.result < 0x1000404)
-}
-*/
 
 error {
     grant ()
