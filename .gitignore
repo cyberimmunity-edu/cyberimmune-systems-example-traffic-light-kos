@@ -1,2 +1,5 @@
 build
 .vscode
+Pipfile
+Pipfile.lock
+sdk-examples
