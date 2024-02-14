@@ -18,8 +18,10 @@ nk_build_cdl_files (echo_cdl_files IDL_TARGET echo_idl_files NK_MODULE "echo" CD
 nk_build_edl_files (echo_server_edl_files CDL_TARGET echo_cdl_files NK_MODULE "echo" EDL "resources/Server.edl")
 nk_build_edl_files (echo_client_edl_files NK_MODULE "echo" EDL "resources/Client.edl")
 nk_build_edl_files (echo_client2_edl_files NK_MODULE "echo" EDL "resources/Client2.edl")
+nk_build_edl_files (echo_connector_edl_files NK_MODULE "echo" EDL "resources/Connector.edl")
 
 add_subdirectory (client)
 add_subdirectory (client2)
+add_subdirectory (connector)
 add_subdirectory (server)
 add_subdirectory (einit)

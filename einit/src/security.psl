@@ -12,6 +12,7 @@ use EDL kl.core.Core
 
 use EDL echo.Client
 use EDL echo.Client2
+use EDL echo.Connector
 use EDL echo.Server
 
 /* Execution of entities allowed. */
@@ -19,38 +20,48 @@ execute {
     grant ()
 }
 
-/* Request messages allowed. */
-request src=echo.Client {
-    grant ()
+request
+{
+    /* Allows the tasks to send requests to the KasperskyOS kernel. */
+    match dst = kl.core.Core
+    {
+        match src = Einit                                 { grant () }
+        match src = echo.Client2                          { grant () }
+        match src = echo.Client                           { grant () }
+        match src = echo.Connector                        { grant () }
+        match src = echo.Server                           { grant () }
+    }
+    
+    /* Allows for initialization calls */
+    match dst = Einit
+    {
+        match src = echo.Server                           { grant () }
+        match src = echo.Client2                          { grant () }
+        match src = echo.Client                           { grant () }
+        match src = echo.Connector                        { grant () }
+    }
+    
+    /* Allows all requests from the core */
+    match src = kl.core.Core                              { grant () }
+    
+    /* Allows all requests from initialization */    
+    match src = Einit                                     { grant () }
+    
+    /* Strict access configuration for the communication with the server */
+    match dst = echo.Server endpoint = Server.ping method = Ping
+    {
+        match src = echo.Client2                          { grant () }
+        match src = echo.Client                           { grant () }
+        match src = echo.Connector                        { grant () }
+    }
 }
 
-
-request src=echo.Client2 dst=kl.core.Core {
-    grant ()
-}
-
-request src=echo.Client2 dst=echo.Server {
-    grant ()
-}
-
-request src=Einit {
-    grant ()
-}
-
-request src=kl.core.Core {
-    grant ()
-}
-
-request src=echo.Server {
-    grant ()
-}
-
-
-/* Response messages allowed. */
+/* All response messages allowed. */
 response {
     grant ()
 }
 
+/* Error messages allowed */
 error {
     grant ()
 }
