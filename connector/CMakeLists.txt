@@ -10,3 +10,13 @@ add_executable (Connector "src/connector.c")
 add_dependencies (Connector echo_idl_files echo_connector_edl_files)
 
 #set_target_properties (Connector PROPERTIES LINK_FLAGS "-Ttext 0x00800000")
+
+target_link_libraries (Connector
+                       ${${PROJECT_NAME}_LIBS}
+                       rump::dhcpcd_client
+                       ${vfs_CLIENT_LIB})
+
+# We do not need the default VFS entity which comes from ${vfs_CLIENT_LIB}.
+set_target_properties (Connector PROPERTIES ${vfs_ENTITY}_REPLACEMENT "")
+set_target_properties (Connector PROPERTIES LINK_FLAGS ${VULN_LDFLAGS})
+

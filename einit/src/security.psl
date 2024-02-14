@@ -7,13 +7,23 @@ execute: kl.core.Execute
 use nk.base._
 
 /* Declaration of entities. */
-use EDL Einit
-use EDL kl.core.Core
 
 use EDL echo.Client
 use EDL echo.Client2
 use EDL echo.Connector
 use EDL echo.Server
+
+use EDL Einit
+use EDL kl.core.Core
+use EDL kl.VfsRamFs
+use EDL kl.VfsSdCardFs
+use EDL kl.VfsNet
+use EDL kl.rump.Dhcpcd
+use EDL kl.drivers.SDCard
+use EDL kl.drivers.RAMDisk
+use EDL kl.drivers.BSP
+use EDL kl.drivers.GPIO
+
 
 /* Execution of entities allowed. */
 execute {
@@ -30,8 +40,18 @@ request
         match src = echo.Client                           { grant () }
         match src = echo.Connector                        { grant () }
         match src = echo.Server                           { grant () }
+        match src = kl.drivers.BSP                        { grant () }
+        match src = kl.drivers.GPIO                       { grant () }
+        match src = kl.rump.Dhcpcd                        { grant () }
+        match src = kl.drivers.RAMDisk                    { grant () }
+        match src = kl.VfsNet                             { grant () }
+        match src = kl.VfsRamFs                           { grant () }
+        match src = kl.VfsSdCardFs                        { grant () }
+        match src = kl.drivers.SDCard                     { grant () }
+        match src = kl.VfsRamFs                           { grant () }
+        match src = kl.VfsRamFs                           { grant () }
     }
-    
+
     /* Allows for initialization calls */
     match dst = Einit
     {
@@ -40,20 +60,33 @@ request
         match src = echo.Client                           { grant () }
         match src = echo.Connector                        { grant () }
     }
-    
+
     /* Allows all requests from the core */
     match src = kl.core.Core                              { grant () }
-    
-    /* Allows all requests from initialization */    
+
+    /* Allows all requests from initialization */
     match src = Einit                                     { grant () }
-    
-    /* Strict access configuration for the communication with the server */
+
+    /* Strict access configuration for the communication with the server:
+       we additionally check source, endpoint and used for the request method
+     */
     match dst = echo.Server endpoint = Server.ping method = Ping
     {
         match src = echo.Client2                          { grant () }
         match src = echo.Client                           { grant () }
         match src = echo.Connector                        { grant () }
     }
+
+    match src = echo.Connector 
+    {
+        match dst = kl.VfsSdCardFs                        { grant () }
+        match dst = kl.VfsRamFs                           { grant () }
+        match dst = kl.VfsNet                             { grant () }
+    }
+    match src = kl.rump.Dhcpcd, dst = kl.VfsRamFs         { grant () }
+    match src = kl.rump.Dhcpcd, dst = kl.VfsNet           { grant () }
+    match src = kl.VfsSdCardFs, dst = kl.drivers.SDCard   { grant () }
+    match src = kl.VfsRamFs, dst = kl.drivers.RAMDisk     { grant () }
 }
 
 /* All response messages allowed. */
