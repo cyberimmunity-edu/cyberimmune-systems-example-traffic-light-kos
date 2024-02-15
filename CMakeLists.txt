@@ -76,5 +76,6 @@ nk_build_edl_files (echo_connector_edl_files NK_MODULE "echo" EDL "${RESOURCES}/
 add_subdirectory (client)
 add_subdirectory (client2)
 add_subdirectory (connector)
+add_subdirectory (json-parser)
 add_subdirectory (server)
 add_subdirectory (einit)

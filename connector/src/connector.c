@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <rtl/stdbool.h>
 #include <kos_net.h>
+#include <unistd.h> // read(), write(), close()
+#include <strings.h> // bzero()
 
 /* Files required for transport initialization. */
 #include <coresrv/nk/transport-kos.h>
@@ -18,13 +20,103 @@
 #include <echo/Ping.idl.h>
 
 #include <assert.h>
+#include <json.h>
 
 #define DISCOVERING_IFACE_MAX   10
 #define TIME_STEP_SEC           5
+#define HOST_IP                 "172.20.172.221"
+#define HOST_PORT               8081
+#define NUM_RETRIES             10
+#define MSG_BUF_SIZE            1024
+#define MSG_CHUNK_BUF_SIZE      256
+#define SA struct sockaddr
 
 #define EXAMPLE_VALUE_TO_SEND 777
 
 static const char LogPrefix[] = "[Connector]";
+
+
+/* get traffic light configuration from the central server */
+int get_traffic_light_configuration(void)
+{
+    int sockfd, connfd;
+    struct sockaddr_in servaddr, cli;
+
+    // socket create and verification
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == -1) {
+        fprintf(stderr, "%s DEBUG: Socket creation failed...\n\n\n", LogPrefix);
+        return EXIT_FAILURE;
+    }
+    else
+        fprintf(stderr, "%s DEBUG: Socket successfully created..\n\n\n", LogPrefix);
+    bzero(&servaddr, sizeof(servaddr));
+
+    // assign IP, PORT
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = inet_addr(HOST_IP);
+
+    if ( servaddr.sin_addr.s_addr == INADDR_NONE ) {
+        fprintf(stderr, "%s bad address!", LogPrefix);
+    }
+
+    servaddr.sin_port = htons(HOST_PORT);
+
+    int res = -1;
+
+    res = -1;
+    for (int i = 0; res == -1 && i < NUM_RETRIES; i++)
+    {
+        sleep(1); // Wait some time for server be ready.
+        res = connect(sockfd, (SA*)&servaddr, sizeof(servaddr));
+    }
+
+    // connect the client socket to server socket
+    if (res != 0) {
+        fprintf(stderr, "%s DEBUG: Connection with the server failed... %d\n\n\n", LogPrefix, res);
+    }
+    else
+        fprintf(stderr, "%s DEBUG: Connected to the server..\n\n\n", LogPrefix);
+
+    printf("preparing request..\n");
+
+    char request_data[MSG_BUF_SIZE + 1];
+    char response_data[MSG_BUF_SIZE + 1];
+    int  request_len = 0;
+    size_t n;
+
+    snprintf(request_data, MSG_CHUNK_BUF_SIZE,
+        "GET /mode/112233 HTTP/1.1\r\n"
+        "Host: 172.20.172.221:5765\r\n\r\n"
+        // "Host-Agent: KOS\r\n"
+        // "Accept: */*\r\n"
+    );
+
+    request_len = strlen(request_data);
+    // fprintf(stderr, "%s, sending request: %s\n len: %d\n", LogPrefix, request_data, request_len);
+
+    /// Write the request
+    write(sockfd, request_data, request_len);
+    write(sockfd, request_data, request_len);
+
+    if (write(sockfd, request_data, request_len)>= 0)
+    {
+        fprintf(stderr, "%s request sent, reading response..\n", LogPrefix);
+        /// Read the response
+        while ((n = read(sockfd, response_data, MSG_BUF_SIZE)) > 0)
+        {
+            response_data[n] = '\0';
+            fprintf(stderr, "%s response data: \n%s\n", LogPrefix, response_data);
+        }
+    }
+    // fprintf(stderr, "%s read data: %s..\n", LogPrefix, response_data);
+
+    // close the socket
+    close(sockfd);
+
+    return EXIT_SUCCESS;
+}
+
 
 /* Connector entity entry point. */
 int main(int argc, const char *argv[])
@@ -36,7 +128,7 @@ int main(int argc, const char *argv[])
     struct            ifconf conf;
     struct            ifreq iface_req[DISCOVERING_IFACE_MAX];
     struct            ifreq *ifr;
-    struct sockaddr * sa;    
+    struct sockaddr * sa;
     bool              is_network_available;
 
     fprintf(stderr, "%s Hello, I'm about to start working\n", LogPrefix);
@@ -106,6 +198,7 @@ int main(int argc, const char *argv[])
 
     /* Test loop. */
     req.value = EXAMPLE_VALUE_TO_SEND;
+    int config = get_traffic_light_configuration();
     for (i = 0; i < 10; ++i)
     {
         /* Call Ping interface method.
