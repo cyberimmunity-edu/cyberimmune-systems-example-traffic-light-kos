@@ -20,7 +20,7 @@
 #include <echo/Ping.idl.h>
 
 #include <assert.h>
-#include <json.h>
+// #include <json.h>
 
 #define DISCOVERING_IFACE_MAX   10
 #define TIME_STEP_SEC           5
