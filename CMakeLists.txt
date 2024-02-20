@@ -27,6 +27,8 @@ include (platform/nk)
 # Add functions for installing artefacts.
 include (platform/install)
 
+set (CMAKE_INCLUDE_CURRENT_DIR ON)
+
 # Add package for working with the virtual file system.
 find_package (vfs REQUIRED)
 include_directories (${vfs_INCLUDE})
@@ -60,7 +62,7 @@ set(VULN_LDFLAGS "\
     -Wl,-z,now")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
     -Wall -Wextra -Wconversion \
-    -fPIE -pie -D_FORTIFY_SOURCE=2 -O2 \
+    -fPIE -pie -g \
     -fstack-protector-strong -fstack-clash-protection \
     -mbranch-protection=standard \
     -Wsign-conversion -Wformat=2 -Wformat-security -Werror=format-security \

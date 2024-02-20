@@ -74,8 +74,9 @@ int get_traffic_light_configuration(void)
 
     printf("preparing request..\n");
 
-    char request_data[MSG_BUF_SIZE + 1];
-    char response_data[MSG_BUF_SIZE + 1];
+    char request_data[MSG_BUF_SIZE];
+    char response_data[MSG_BUF_SIZE];
+    char response_data_chunk[MSG_BUF_SIZE];
     int request_len = 0;
     size_t n;
 
@@ -88,23 +89,22 @@ int get_traffic_light_configuration(void)
     );
 
     request_len = strlen(request_data);
+    response_data[0] = 0;
+    response_data_chunk[0] = 0;
     // fprintf(stderr, "%s, sending request: %s\n len: %d\n", LogPrefix, request_data, request_len);
 
     /// Write the request
-    write(sockfd, request_data, request_len);
-    write(sockfd, request_data, request_len);
-
     if (write(sockfd, request_data, request_len) >= 0)
     {
         fprintf(stderr, "%s request sent, reading response..\n", LogPrefix);
         /// Read the response
-        while ((n = read(sockfd, response_data, MSG_BUF_SIZE)) > 0)
+        while ((n = read(sockfd, response_data_chunk, MSG_BUF_SIZE)) > 0)
         {
-            response_data[n] = '\0';
+            strcat(response_data, response_data_chunk);
             fprintf(stderr, "%s response data: \n%s\n", LogPrefix, response_data);
         }
     }
-    // fprintf(stderr, "%s read data: %s..\n", LogPrefix, response_data);
+    fprintf(stderr, "%s read data: %s..\n", LogPrefix, response_data);
     int rc = parse_response(response_data);
     fprintf(stderr, "%s response parsing result: \n%d\n", LogPrefix, rc);
 
