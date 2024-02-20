@@ -9,5 +9,10 @@ build-sim:
 
 sim: build-sim
 
+get-json-parser:
+	git clone https://github.com/json-parser/json-parser
+
+prepare: get-json-parser
+
 clean:
 	rm -rf build
