@@ -3,4 +3,3 @@ build
 Pipfile
 Pipfile.lock
 sdk-examples
-rest-client
