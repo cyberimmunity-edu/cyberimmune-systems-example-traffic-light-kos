@@ -1,0 +1,8 @@
+/* Definition of the `Ping` component. */
+
+component traffic_light.Ping
+
+endpoints {
+    /* Declaration of a named implementation of the "Ping" interface. */
+    ping : traffic_light.Ping
+}
