@@ -10,3 +10,4 @@ add_executable (Server "src/server.c")
 add_dependencies (Server echo_server_edl_files)
 
 #set_target_properties (Server PROPERTIES LINK_FLAGS "-Ttext 0x00c00000")
+set_target_properties (Server PROPERTIES LINK_FLAGS "-no-pie -Ttext 0xA00000")

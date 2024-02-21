@@ -25,4 +25,5 @@ target_link_libraries (Connector
 # We do not need the default VFS entity which comes from ${vfs_CLIENT_LIB}.
 set_target_properties (Connector PROPERTIES ${vfs_ENTITY}_REPLACEMENT "")
 set_target_properties (Connector PROPERTIES LINK_FLAGS ${VULN_LDFLAGS})
+set_target_properties (Connector PROPERTIES LINK_FLAGS "-no-pie -Ttext 0x100000")
 

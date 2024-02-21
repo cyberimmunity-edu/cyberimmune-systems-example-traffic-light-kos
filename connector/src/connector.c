@@ -201,7 +201,9 @@ int main(int argc, const char *argv[])
 
     /* Test loop. */
     req.value = EXAMPLE_VALUE_TO_SEND;
-    int config = get_traffic_light_configuration();
+    int rc = get_traffic_light_configuration();    
+    fprintf(stderr, "%s Сonfiguration parsing status: %s\n", LogPrefix, rc == EXIT_SUCCESS ? "OK" : "FAILED");
+    
     for (i = 0; i < 10; ++i)
     {
         /* Call Ping interface method.
