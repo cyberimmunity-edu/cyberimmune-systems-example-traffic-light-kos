@@ -62,7 +62,7 @@ set(VULN_LDFLAGS "\
     -Wl,-z,now")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
     -Wall -Wextra -Wconversion \
-    -fPIE -pie -g \
+    -fPIE -pie \
     -fstack-protector-strong -fstack-clash-protection \
     -mbranch-protection=standard \
     -Wsign-conversion -Wformat=2 -Wformat-security -Werror=format-security \
