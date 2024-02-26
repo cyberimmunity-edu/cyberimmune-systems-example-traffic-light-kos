@@ -10,6 +10,9 @@
 /* EDL description of the LightsGPIO entity. */
 #include <traffic_light/LightsGPIO.edl.h>
 
+/* Description of the server interface used by the `client` entity. */
+#include <traffic_light/Ping.idl.h>
+
 #include <assert.h>
 
 /* Type of interface implementing object. */
@@ -90,15 +93,26 @@ int main(void)
                                         res_buffer + sizeof(res_buffer));
 
     /**
-     * Initialize mode component dispatcher. 3 is the value of the step,
-     * which is the number by which the input value is increased.
+     * Initialize proxy object by specifying transport (&transport)
+     * and lights gpio interface identifier (riid). Each method of the
+     * proxy object will be implemented by sending a request to the lights gpio.
      */
-    traffic_light_CMode_component component;
-    traffic_light_CMode_component_init(&component, CreateIModeImpl(0x1000000));
+    traffic_light_Ping_proxy_init(&proxy, &transport.base, riid);
 
-    /* Initialize lights gpio entity dispatcher. */
-    traffic_light_LightsGPIO_entity entity;
-    traffic_light_LightsGPIO_entity_init(&entity, &component);
+    /* Request and response structures */
+    traffic_light_Ping_Ping_req req;
+    traffic_light_Ping_Ping_res res;
+
+    /**
+     * Initialize proxy object by specifying transport (&transport)
+     * and lights gpio interface identifier (riid). Each method of the
+     * proxy object will be implemented by sending a request to the lights gpio.
+     */
+    traffic_light_IMode_proxy_init(&proxy, &transport.base, riid);
+
+    /* Request and response structures */
+    traffic_light_IMode_FMode_req req;
+    traffic_light_IMode_FMode_res res;
 
     fprintf(stderr, "Hello I'm LightsGPIO\n");
 

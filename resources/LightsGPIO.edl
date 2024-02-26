@@ -2,5 +2,4 @@ entity traffic_light.LightsGPIO
 
 components {
     lightsGpio : traffic_light.CMode
-    lightsGpioDiagnostics : traffic_light.Ping
 }

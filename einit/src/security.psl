@@ -15,7 +15,7 @@ use EDL kl.core.Core
 use EDL traffic_light.ControlSystem
 use EDL traffic_light.LightsGPIO
 use EDL traffic_light.DiagnosticSystem
-use EDL traffic_light.Connection
+/*use EDL traffic_light.Connection */
 
 /* Execution of entities allowed. */
 execute {
