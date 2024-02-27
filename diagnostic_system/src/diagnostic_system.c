@@ -14,15 +14,15 @@
 
 /* Type of interface implementing object. */
 typedef struct IPingImpl {
-    struct traffic_light_Ping base;     // Base interface of object
+    struct traffic_light_IPing base;     // Base interface of object
     int step;             // Extra parameters
 } IPingImpl;
 
 /* Ping method implementation. */
-static nk_err_t Ping_impl(struct traffic_light_Ping *self,
-                          const traffic_light_Ping_req *req,
+static nk_err_t FPing_impl(struct traffic_light_IPing *self,
+                          const traffic_light_IPing_FPing_req *req,
                           const struct nk_arena* req_arena,
-                          traffic_light_Ping_res* res,
+                          traffic_light_IPing_FPing_res* res,
                           struct nk_arena* res_arena)
 {
     IPingImpl *impl = (IPingImpl *)self;
@@ -35,11 +35,11 @@ static nk_err_t Ping_impl(struct traffic_light_Ping *self,
 
 /* IPing object constructor.
  * step is the number by which the input value is increased. */
-static struct traffic_light_Ping *CreateIPingImpl(int step)
+static struct traffic_light_IPing *CreateIPingImpl(int step)
 {
     /* Table of implementations of IPing interface methods. */
-    static const struct traffic_light_Ping_ops ops = {
-        .Ping = Ping_impl
+    static const struct traffic_light_IPing_ops ops = {
+        .FPing = FPing_impl
     };
 
 
@@ -85,12 +85,23 @@ int main(void)
 
     /* Initialize ping component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased. */
-    traffic_light_Ping_component component;
-    traffic_light_Ping_component_init(&component, CreateIPingImpl(3));
+    traffic_light_CPing_component component;
+    traffic_light_CPing_component_init(&component, CreateIPingImpl(3));
 
     /* Initialize DiagnosticSystem entity dispatcher. */
     traffic_light_DiagnosticSystem_entity entity;
     traffic_light_DiagnosticSystem_entity_init(&entity, &component);
+
+    /**
+     * Initialize proxy object by specifying transport (&transport)
+     * and lights gpio interface identifier (riid). Each method of the
+     * proxy object will be implemented by sending a request to the lights gpio.
+     
+    traffic_light_IPing_proxy_init(&proxy, &transport.base, riid);*/
+
+    /* Request and response structures 
+    traffic_light_IPing_FPing_req req;
+    traffic_light_IPing_FPing_res res;*/
 
     fprintf(stderr, "Hello I'm DiagnosticSystem\n");
 

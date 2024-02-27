@@ -1,8 +1,0 @@
-/* Package with an "Ping" interface declaration. */
-
-package traffic_light.Ping
-
-interface {
-    /* Ping interface method */
-    Ping(in UInt32 value, out UInt32 result);
-}
