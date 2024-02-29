@@ -14,6 +14,8 @@ use EDL kl.core.Core
 
 use EDL traffic_light.ControlSystem
 use EDL traffic_light.LightsGPIO
+use EDL traffic_light.DiagnosticSystem
+use EDL traffic_light.CommunicationSystem
 
 /* Execution of entities allowed. */
 execute {
@@ -31,10 +33,37 @@ request src=traffic_light.ControlSystem dst=kl.core.Core {
     grant ()
 }
 
+request src=traffic_light.CommunicationSystem 
+    dst=traffic_light.ControlSystem 
+    endpoint=controls.mode
+    method=FMode {
+        grant()
+}
 
 request src=traffic_light.ControlSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpio.mode 
+    dst=traffic_light.CommunicationSystem 
+    endpoint=communications.mode 
+    method=FMode {
+        grant()
+}
+
+request src=traffic_light.DiagnosticSystem 
+    dst=traffic_light.ControlSystem
+    endpoint=controls.mode 
+    method=FMode {
+        grant()
+}
+
+request src=traffic_light.ControlSystem 
+    dst=traffic_light.DiagnosticSystem
+    endpoint=diagnostics.mode 
+    method=FMode {
+        grant()
+}
+
+request src=traffic_light.LightsGPIO 
+    dst=traffic_light.DiagnosticSystem 
+    endpoint=diagnostics.mode 
     method=FMode {
         grant()
 }
