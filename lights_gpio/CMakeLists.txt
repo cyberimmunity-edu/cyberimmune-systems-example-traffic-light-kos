@@ -7,4 +7,4 @@ include (platform/nk)
 project_header_default ("STANDARD_GNU_11:YES" "STRICT_WARNINGS:NO")
 
 add_executable (LightsGPIO "src/lights_gpio.c")
-add_dependencies (LightsGPIO traffic_light_lights_gpio_edl_files)
+add_dependencies (LightsGPIO traffic_light_idl_files traffic_light_lights_gpio_edl_files)

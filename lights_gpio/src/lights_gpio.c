@@ -10,7 +10,12 @@
 /* EDL description of the LightsGPIO entity. */
 #include <traffic_light/LightsGPIO.edl.h>
 
+/* Description of the DiagnosticSystem interface used by the `LightsGPIO` entity. */
+#include <traffic_light/IMode.idl.h>
+
 #include <assert.h>
+
+#define MODES_NUM 2
 
 /* Type of interface implementing object. */
 typedef struct IModeImpl {
@@ -62,9 +67,17 @@ int main(void)
     NkKosTransport transport;
     ServiceId iid;
 
+    struct traffic_light_IMode_proxy proxy;
+    int i;
+    static const nk_uint32_t tl_modes[MODES_NUM] = {
+        traffic_light_IMode_Direction1Green + traffic_light_IMode_Direction1Yellow + traffic_light_IMode_Direction1Blink + traffic_light_IMode_Direction2Red,
+        traffic_light_IMode_Direction1Green + traffic_light_IMode_Direction1Yellow + traffic_light_IMode_Direction1Blink + traffic_light_IMode_Direction2Blink + traffic_light_IMode_Direction2Red
+    };
+
     /* Get lights gpio IPC handle of "lights_gpio_connection". */
     Handle handle = ServiceLocatorRegister("lights_gpio_connection", NULL, 0, &iid);
     assert(handle != INVALID_HANDLE);
+    
 
     /* Initialize transport to control system. */
     NkKosTransport_Init(&transport, handle, NK_NULL, 0);
@@ -132,6 +145,62 @@ int main(void)
         }
     }
     while (true);
+
+    /*
+     * Get the LightsGPIO IPC handle of the connection named
+     * "lights_gpio_connection".
+     */
+    Handle handle2 = ServiceLocatorConnect("diagnostic_system_connection");
+    assert(handle2 != INVALID_HANDLE);
+
+    /**
+     * Get Runtime Interface ID (RIID) for interface traffic_light.Mode.mode.
+     * Here mode is the name of the traffic_light.Mode component instance,
+     * traffic_light.Mode.mode is the name of the Mode interface implementation.
+     */
+    nk_iid_t riid = ServiceLocatorGetRiid(handle2, "diagnostics.mode");
+    assert(riid != INVALID_RIID);
+
+    /**
+     * Initialize proxy object by specifying transport (&transport)
+     * and lights gpio interface identifier (riid). Each method of the
+     * proxy object will be implemented by sending a request to the lights gpio.
+     */
+    traffic_light_IMode_proxy_init(&proxy, &transport.base, riid);
+
+    /* Request and response structures */
+    traffic_light_IMode_FMode_req req2;
+    traffic_light_IMode_FMode_res res2;
+
+    /* Test loop. */
+    req2.value = 0;
+    for (i = 0; i < MODES_NUM; i++)
+    {
+        req2.value = tl_modes[i];
+        /**
+         * Call Mode interface method.
+         * Lights GPIO will be sent a request for calling Mode interface method
+         * mode_comp.mode_impl with the value argument. Calling thread is locked
+         * until a response is received from the lights gpio.
+         */
+        if (traffic_light_IMode_FMode(&proxy.base, &req2, NULL, &res2, NULL) == rcOk)
+
+        {
+            /**
+             * Print result value from response
+             * (result is the output argument of the Mode method).
+             */
+            fprintf(stderr, "result = %0x\n", (int) res2.result);
+            /**
+             * Include received result value into value argument
+             * to resend to lights gpio in next iteration.
+             */
+            req2.value = res2.result;
+
+        }
+        else
+            fprintf(stderr, "Failed to call traffic_light.Mode.Mode()\n");
+    }
 
     return EXIT_SUCCESS;
 }

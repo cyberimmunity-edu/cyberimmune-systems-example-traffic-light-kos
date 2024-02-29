@@ -13,38 +13,38 @@
 #include <assert.h>
 
 /* Type of interface implementing object. */
-typedef struct IPingImpl {
-    struct traffic_light_IPing base;     // Base interface of object
+typedef struct IModeImpl {
+    struct traffic_light_IMode base;     // Base interface of object
     int step;             // Extra parameters
-} IPingImpl;
+} IModeImpl;
 
-/* Ping method implementation. */
-static nk_err_t FPing_impl(struct traffic_light_IPing *self,
-                          const traffic_light_IPing_FPing_req *req,
+/* Mode method implementation. */
+static nk_err_t FMode_impl(struct traffic_light_IMode *self,
+                          const traffic_light_IMode_FMode_req *req,
                           const struct nk_arena* req_arena,
-                          traffic_light_IPing_FPing_res* res,
+                          traffic_light_IMode_FMode_res* res,
                           struct nk_arena* res_arena)
 {
-    IPingImpl *impl = (IPingImpl *)self;
+    IModeImpl *impl = (IModeImpl *)self;
     /* Increment value in client request by
      * one step and include into result argument that will be
      * sent to the client in the DiagnosticSystem response. */
-    res->Ping.result = req->Ping.value + impl->step;
+    res->result = req->value + impl->step;
     return NK_EOK;
 }
 
-/* IPing object constructor.
+/* IMode object constructor.
  * step is the number by which the input value is increased. */
-static struct traffic_light_IPing *CreateIPingImpl(int step)
+static struct traffic_light_IMode *CreateIModeImpl(int step)
 {
-    /* Table of implementations of IPing interface methods. */
-    static const struct traffic_light_IPing_ops ops = {
-        .FPing = FPing_impl
+    /* Table of implementations of IMode interface methods. */
+    static const struct traffic_light_IMode_ops ops = {
+        .FMode = FMode_impl
     };
 
 
     /* Interface implementing object. */
-    static struct IPingImpl impl = {
+    static struct IModeImpl impl = {
         .base = {&ops}
     };
 
@@ -60,7 +60,7 @@ int main(void)
     NkKosTransport transport;
     ServiceId iid;
 
-    /* Get DiagnosticSystem IPC handle of "diagnostic_system_connection". */
+    /* Get DiagnosticSystem IPC handle of "DiagnosticSystem_connection". */
     Handle handle = ServiceLocatorRegister("diagnostic_system_connection", NULL, 0, &iid);
     assert(handle != INVALID_HANDLE);
 
@@ -83,25 +83,14 @@ int main(void)
     char res_buffer[traffic_light_DiagnosticSystem_entity_res_arena_size];
     struct nk_arena res_arena = NK_ARENA_INITIALIZER(res_buffer, res_buffer + sizeof(res_buffer));
 
-    /* Initialize ping component dispatcher. 3 is the value of the step,
+    /* Initialize Mode component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased. */
-    traffic_light_CPing_component component;
-    traffic_light_CPing_component_init(&component, CreateIPingImpl(3));
+    traffic_light_CMode_component component;
+    traffic_light_CMode_component_init(&component, CreateIModeImpl(3));
 
     /* Initialize DiagnosticSystem entity dispatcher. */
     traffic_light_DiagnosticSystem_entity entity;
     traffic_light_DiagnosticSystem_entity_init(&entity, &component);
-
-    /**
-     * Initialize proxy object by specifying transport (&transport)
-     * and lights gpio interface identifier (riid). Each method of the
-     * proxy object will be implemented by sending a request to the lights gpio.
-     
-    traffic_light_IPing_proxy_init(&proxy, &transport.base, riid);*/
-
-    /* Request and response structures 
-    traffic_light_IPing_FPing_req req;
-    traffic_light_IPing_FPing_res res;*/
 
     fprintf(stderr, "Hello I'm DiagnosticSystem\n");
 
@@ -117,8 +106,8 @@ int main(void)
         if (nk_transport_recv(&transport.base, &req.base_, &req_arena) != NK_EOK) {
             fprintf(stderr, "nk_transport_recv error\n");
         } else {
-            /* Handle received request by calling implementation Ping_impl
-             * of the requested Ping interface method. */
+            /* Handle received request by calling implementation Mode
+             * of the requested Mode interface method. */
             traffic_light_DiagnosticSystem_entity_dispatch(&entity, &req.base_, &req_arena, &res.base_, &res_arena);
         }
 
