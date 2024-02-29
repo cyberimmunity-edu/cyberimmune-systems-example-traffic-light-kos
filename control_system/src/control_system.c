@@ -50,10 +50,10 @@ int main(int argc, const char *argv[])
      */
     Handle handle = ServiceLocatorConnect("lights_gpio_connection");
     assert(handle != INVALID_HANDLE);
-
+    fprintf(stderr, "Hello I'm ControlSystem-0\n");
     /* Initialize IPC transport for interaction with the lights gpio entity. */
     NkKosTransport_Init(&transport, handle, NK_NULL, 0);
-
+    fprintf(stderr, "Hello I'm ControlSystem-2\n");
     /**
      * Get Runtime Interface ID (RIID) for interface traffic_light.Mode.mode.
      * Here mode is the name of the traffic_light.Mode component instance,
@@ -61,18 +61,18 @@ int main(int argc, const char *argv[])
      */
     nk_iid_t riid = ServiceLocatorGetRiid(handle, "lightsGpio.mode");
     assert(riid != INVALID_RIID);
-
+    fprintf(stderr, "Hello I'm ControlSystem-3\n");
     /**
      * Initialize proxy object by specifying transport (&transport)
      * and lights gpio interface identifier (riid). Each method of the
      * proxy object will be implemented by sending a request to the lights gpio.
      */
     traffic_light_IMode_proxy_init(&proxy, &transport.base, riid);
-
+    fprintf(stderr, "Hello I'm ControlSystem-4\n");
     /* Request and response structures */
     traffic_light_IMode_FMode_req req;
     traffic_light_IMode_FMode_res res;
-
+    fprintf(stderr, "Hello I'm ControlSystem-5\n");
     /* Test loop. */
     req.value = 0;
     for (i = 0; i < MODES_NUM; i++)
@@ -85,12 +85,13 @@ int main(int argc, const char *argv[])
          * until a response is received from the lights gpio.
          */
         if (traffic_light_IMode_FMode(&proxy.base, &req, NULL, &res, NULL) == rcOk)
-
+        
         {
             /**
              * Print result value from response
              * (result is the output argument of the Mode method).
              */
+            fprintf(stderr, "Hello I'm ControlSystem-6\n");
             fprintf(stderr, "result = %0x\n", (int) res.result);
             /**
              * Include received result value into value argument
@@ -100,7 +101,7 @@ int main(int argc, const char *argv[])
 
         }
         else
-            fprintf(stderr, "Failed to call traffic_light.Mode.Mode()\n");
+            fprintf(stderr, "Failed to call traffic_light.LightGPIO.Mode()\n");
     }
 
     return EXIT_SUCCESS;

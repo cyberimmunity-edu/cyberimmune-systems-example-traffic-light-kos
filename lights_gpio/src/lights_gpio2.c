@@ -11,7 +11,7 @@
 #include <traffic_light/LightsGPIO.edl.h>
 
 /* Description of the DiagnosticSystem interface used by the `LightsGPIO` entity. */
-#include <traffic_light/IPing.idl.h>
+#include <traffic_light/IMode.idl.h>
 
 #include <assert.h>
 
@@ -30,6 +30,7 @@ static nk_err_t FMode_impl(struct traffic_light_IMode *self,
                           traffic_light_IMode_FMode_res *res,
                           struct nk_arena *res_arena)
 {
+    fprintf(stderr, "Hello I'm LightsGPIO FMode_impl\n");
     IModeImpl *impl = (IModeImpl *)self;
     /**
      * Increment value in control system request by
@@ -46,6 +47,7 @@ static nk_err_t FMode_impl(struct traffic_light_IMode *self,
  */
 static struct traffic_light_IMode *CreateIModeImpl(rtl_uint32_t step)
 {
+    fprintf(stderr, "Hello I'm LightsGPIO CreateIModeImpl\n");
     /* Table of implementations of IMode interface methods. */
     static const struct traffic_light_IMode_ops ops = {
         .FMode = FMode_impl
@@ -68,11 +70,11 @@ int main(void)
     ServiceId iid;
 
     NkKosTransport transport2;
-    struct traffic_light_IPing_proxy proxy2;
+    struct traffic_light_IMode_proxy proxy2;
     int i;
     static const nk_uint32_t tl_modes[MODES_NUM] = {
-        traffic_light_IPing_Direction1Green + traffic_light_IPing_Direction2Red,
-        traffic_light_IPing_Direction1Green + traffic_light_IPing_Direction2Green
+        traffic_light_IMode_Direction1Green + traffic_light_IMode_Direction2Red,
+        traffic_light_IMode_Direction1Green + traffic_light_IMode_Direction2Green
     };
 
     /* Get lights gpio IPC handle of "lights_gpio_connection". */
@@ -123,30 +125,31 @@ int main(void)
      * "lights_gpio_connection".
      */
     Handle handle2 = ServiceLocatorConnect("diagnostic_system_connection");
+    fprintf(stderr, "Hello I'm LightsGPIO-61\n");
     assert(handle2 != INVALID_HANDLE);
-
+    fprintf(stderr, "Hello I'm LightsGPIO-6\n");
     /* Initialize IPC transport for interaction with the lights gpio entity. */
     NkKosTransport_Init(&transport2, handle2, NK_NULL, 0);
-
+    fprintf(stderr, "Hello I'm LightsGPIO-7\n");
     /**
      * Get Runtime Interface ID (RIID) for interface traffic_light.Mode.mode.
      * Here mode is the name of the traffic_light.Mode component instance,
      * traffic_light.Mode.mode is the name of the Mode interface implementation.
      */
-    nk_iid_t riid2 = ServiceLocatorGetRiid(handle2, "diagnostics.ping");
-    assert(riid2 != INVALID_RIID);
-
+    nk_iid_t riid = ServiceLocatorGetRiid(handle2, "diagnostics.mode");
+    assert(riid != INVALID_RIID);
+    fprintf(stderr, "Hello I'm LightsGPIO-8\n");
     /**
      * Initialize proxy object by specifying transport (&transport)
      * and lights gpio interface identifier (riid). Each method of the
      * proxy object will be implemented by sending a request to the lights gpio.
      */
-    traffic_light_IPing_proxy_init(&proxy2, &transport2.base, riid2);
-
+    traffic_light_IMode_proxy_init(&proxy2, &transport2.base, riid);
+    fprintf(stderr, "Hello I'm LightsGPIO-9\n");
     /* Request and response structures */
-    traffic_light_IPing_FPing_req req2;
-    traffic_light_IPing_FPing_res res2;
-
+    traffic_light_IMode_FMode_req req2;
+    traffic_light_IMode_FMode_res res2;
+    fprintf(stderr, "Hello I'm LightsGPIO-10\n");
     /* Dispatch loop implementation. */
     do
     {

@@ -13,49 +13,45 @@
 #include <assert.h>
 
 /* Type of interface implementing object. */
-typedef struct IPingImpl {
-    struct traffic_light_IPing base;     /* Base interface of object */
-    rtl_uint32_t step;                   /* Extra parameters */
-} IPingImpl;
+typedef struct IModeImpl {
+    struct traffic_light_IMode base;     // Base interface of object
+    rtl_uint32_t step;             // Extra parameters
+} IModeImpl;
 
-/* Ping method implementation. */
-static nk_err_t FPing_impl(struct traffic_light_IPing *self,
-                          const struct traffic_light_IPing_FPing_req *req,
-                          const struct nk_arena *req_arena,
-                          traffic_light_IPing_FPing_res *res,
-                          struct nk_arena *res_arena)
+/* Mode method implementation. */
+static nk_err_t FMode_impl(struct traffic_light_IMode *self,
+                          const traffic_light_IMode_FMode_req *req,
+                          const struct nk_arena* req_arena,
+                          traffic_light_IMode_FMode_res* res,
+                          struct nk_arena* res_arena)
 {
-    fprintf(stderr, "Hello I'm DiagnosticSystem FPing_impl\n");
-    IPingImpl *impl = (IPingImpl *)self;
-    /**
-     * Increment value in control system request by
+    IModeImpl *impl = (IModeImpl *)self;
+    /* Increment value in client request by
      * one step and include into result argument that will be
-     * sent to the control system in the lights gpio response.
-     */
+     * sent to the client in the DiagnosticSystem response. */
     res->result = req->value + impl->step;
     return NK_EOK;
 }
 
-/**
- * IPing object constructor.
- * step is the number by which the input value is increased.
- */
-static struct traffic_light_IPing *CreateIPingImpl(rtl_uint32_t step)
+/* IMode object constructor.
+ * step is the number by which the input value is increased. */
+static struct traffic_light_IMode *CreateIModeImpl(int step)
 {
-    fprintf(stderr, "Hello I'm DiagnosticSystem CreateIPingImpl\n");
-    /* Table of implementations of IPing interface methods. */
-    static const struct traffic_light_IPing_ops ops = {
-        .FPing = FPing_impl
+    /* Table of implementations of IMode interface methods. */
+    static const struct traffic_light_IMode_ops ops = {
+        .FMode = FMode_impl
     };
 
+
     /* Interface implementing object. */
-    static struct IPingImpl impl = {
+    static struct IModeImpl impl = {
         .base = {&ops}
     };
 
     impl.step = step;
 
     return &impl.base;
+
 }
 
 /* DiagnosticSystem entry point. */
@@ -96,10 +92,10 @@ int main(void)
     struct nk_arena res_arena = NK_ARENA_INITIALIZER(res_buffer, res_buffer + sizeof(res_buffer));
 
     fprintf(stderr, "Hello I'm DiagnosticSystem4\n");
-    /* Initialize Ping component dispatcher. 3 is the value of the step,
+    /* Initialize Mode component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased. */
-    traffic_light_CPing_component component;
-    traffic_light_CPing_component_init(&component, CreateIPingImpl(0x1000000));
+    traffic_light_CMode_component component;
+    traffic_light_CMode_component_init(&component, CreateIModeImpl(0x1000000));
 
     fprintf(stderr, "Hello I'm DiagnosticSystem5\n");
     /* Initialize DiagnosticSystem entity dispatcher. */
@@ -120,8 +116,8 @@ int main(void)
         if (nk_transport_recv(&transport.base, &req.base_, &req_arena) != NK_EOK) {
             fprintf(stderr, "nk_transport_recv error\n");
         } else {
-            /* Handle received request by calling implementation Ping
-             * of the requested Ping interface method. */
+            /* Handle received request by calling implementation Mode
+             * of the requested Mode interface method. */
             traffic_light_DiagnosticSystem_entity_dispatch(&entity, &req.base_, &req_arena, &res.base_, &res_arena);
         }
 

@@ -15,7 +15,7 @@ use EDL kl.core.Core
 use EDL traffic_light.ControlSystem
 use EDL traffic_light.LightsGPIO
 use EDL traffic_light.DiagnosticSystem
-use EDL traffic_light.CommunicationSystem
+/*use EDL traffic_light.CommunicationSystem*/
 
 /* Execution of entities allowed. */
 execute {
@@ -29,60 +29,43 @@ request src=traffic_light.ControlSystem {
 }
 */
 
-/* Request messages DiagnosticSystem-LightsGPIO allowed. */
-request src=traffic_light.DiagnosticSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpioDiagnostics.ping
-    method=Ping {
-        grant()
-}
-
-/* Request messages Connection-ControlSystem allowed. */
-request src=traffic_light.Connection 
-    dst=traffic_light.ControlSystem 
-    endpoint=control.ping
-    method=Ping {
-        grant()
-}
-
-
 request src=traffic_light.ControlSystem dst=kl.core.Core {
     grant ()
 }
-
+/*
 request src=traffic_light.CommunicationSystem 
     dst=traffic_light.ControlSystem 
     endpoint=controls.mode
     method=FMode {
-        grant()
+        grant ()
 }
 
 request src=traffic_light.ControlSystem 
     dst=traffic_light.CommunicationSystem 
     endpoint=communications.mode 
     method=FMode {
-        grant()
+        grant ()
 }
 
 request src=traffic_light.DiagnosticSystem 
     dst=traffic_light.ControlSystem
     endpoint=controls.mode 
     method=FMode {
-        grant()
+        grant ()
 }
 
 request src=traffic_light.ControlSystem 
     dst=traffic_light.DiagnosticSystem
-    endpoint=diagnostics.mode 
-    method=FMode {
-        grant()
+    endpoint=diagnostics.ping
+    method=FPing {
+        grant ()
 }
-
+*/
 request src=traffic_light.LightsGPIO 
     dst=traffic_light.DiagnosticSystem 
-    endpoint=diagnostics.mode 
-    method=FMode {
-        grant()
+    endpoint=diagnostics.ping 
+    method=FPing {
+        grant ()
 }
 
 /* Разрешены все комбинации кроме зеленый-зеленый и зеленый-зеленый в комбинации с другими цветами*/
@@ -112,6 +95,7 @@ request src=traffic_light.LightsGPIO dst=kl.core.Core {
 
 
 /* Response messages allowed. */
+
 response {
     grant ()
 }
@@ -124,14 +108,6 @@ response src=traffic_light.LightsGPIO
         assert (message.result < 0x1000404)
 }
 */
-
-response src=traffic_light.LightsGPIO 
-    dst=traffic_light.DiagnosticSystem 
-    endpoint=lightsGpio.mode 
-    method=Ping {
-        grant ()
-}
-
 
 error {
     grant ()
