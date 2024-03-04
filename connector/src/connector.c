@@ -25,7 +25,7 @@
 
 #define DISCOVERING_IFACE_MAX   10
 #define TIME_STEP_SEC           5
-#define HOST_IP                 "172.20.172.221"
+#define HOST_IP                 "10.0.2.2"
 #define HOST_PORT               8081
 #define NUM_RETRIES             10
 #define MSG_BUF_SIZE            1024
