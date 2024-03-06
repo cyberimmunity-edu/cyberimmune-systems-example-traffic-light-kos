@@ -15,8 +15,6 @@
 
 #include <assert.h>
 
-#define MODES_NUM 2
-
 /* Type of interface implementing object. */
 typedef struct IModeImpl {
     struct traffic_light_IMode base;     /* Base interface of object */
@@ -67,14 +65,6 @@ int main(void)
     NkKosTransport transport;
     ServiceId iid;
 
-    NkKosTransport transport2;
-    struct traffic_light_IPing_proxy proxy2;
-    int i;
-    static const nk_uint32_t tl_modes[MODES_NUM] = {
-        traffic_light_IPing_Direction1Green + traffic_light_IPing_Direction2Red,
-        traffic_light_IPing_Direction1Green + traffic_light_IPing_Direction2Green
-    };
-
     /* Get lights gpio IPC handle of "lights_gpio_connection". */
     Handle handle = ServiceLocatorRegister("lights_gpio_connection", NULL, 0, &iid);
     assert(handle != INVALID_HANDLE);
@@ -117,6 +107,10 @@ int main(void)
     traffic_light_LightsGPIO_entity_init(&entity, &component);
 
     fprintf(stderr, "Hello I'm LightsGPIO\n");
+
+    NkKosTransport transport2;
+    struct traffic_light_IPing_proxy proxy2;
+    /*static const nk_uint32_t tl_diagnostics = traffic_light_IPing_DiagnisticMsg;
 
     /*
      * Get the LightsGPIO IPC handle of the connection named
@@ -176,35 +170,31 @@ int main(void)
             fprintf(stderr, "nk_transport_reply error\n");
         }
 
-        /* Test loop. */
-        req2.value = 0;
-        for (i = 0; i < MODES_NUM; i++)
+        /* DiagnosticSystem Test loop. */
+        req2.value = traffic_light_IPing_DiagnisticMsg;
+        /**
+        * Call Mode interface method.
+        * Lights GPIO will be sent a request for calling Mode interface method
+        * mode_comp.mode_impl with the value argument. Calling thread is locked
+        * until a response is received from the lights gpio.
+        */
+        if (traffic_light_IPing_FPing(&proxy2.base, &req2, NULL, &res2, NULL) == rcOk)
+
         {
-            req2.value = tl_modes[i];
             /**
-            * Call Mode interface method.
-            * Lights GPIO will be sent a request for calling Mode interface method
-            * mode_comp.mode_impl with the value argument. Calling thread is locked
-            * until a response is received from the lights gpio.
+            * Print result value from response
+            * (result is the output argument of the Mode method).
             */
-            if (traffic_light_IPing_FPing(&proxy2.base, &req2, NULL, &res2, NULL) == rcOk)
+            fprintf(stderr, "result2 = %0x\n", (int) res2.result);
+            /**
+            * Include received result value into value argument
+            * to resend to lights gpio in next iteration.
+            */
+            req2.value = res2.result;
 
-            {
-                /**
-                * Print result value from response
-                * (result is the output argument of the Mode method).
-                */
-                fprintf(stderr, "result2 = %0x\n", (int) res2.result);
-                /**
-                * Include received result value into value argument
-                * to resend to lights gpio in next iteration.
-                */
-                req2.value = res2.result;
-
-            }
-            else
-                fprintf(stderr, "Failed to call traffic_light.DiagnosticSystem.Ping()\n");
         }
+        else
+            fprintf(stderr, "Failed to call traffic_light.DiagnosticSystem.Ping()\n");
     }
     while (true);
 
