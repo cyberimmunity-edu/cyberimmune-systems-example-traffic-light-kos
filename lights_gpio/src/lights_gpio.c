@@ -15,6 +15,8 @@
 
 #include <assert.h>
 
+#define MSGS_NUM 1
+
 /* Type of interface implementing object. */
 typedef struct IModeImpl {
     struct traffic_light_IMode base;     /* Base interface of object */
@@ -59,6 +61,7 @@ static struct traffic_light_IMode *CreateIModeImpl(rtl_uint32_t step)
     return &impl.base;
 }
 
+
 /* Lights GPIO entry point. */
 int main(void)
 {
@@ -67,13 +70,11 @@ int main(void)
 
     /* Get lights gpio IPC handle of "lights_gpio_connection". */
     Handle handle = ServiceLocatorRegister("lights_gpio_connection", NULL, 0, &iid);
-    assert(handle != INVALID_HANDLE);
-
-    fprintf(stderr, "Hello I'm LightsGPIO-0\n");    
+    assert(handle != INVALID_HANDLE);  
 
     /* Initialize transport to control system. */
     NkKosTransport_Init(&transport, handle, NK_NULL, 0);
-    fprintf(stderr, "Hello I'm LightsGPIO-2\n");    
+  
 
     /**
      * Prepare the structures of the request to the lights gpio entity: constant
@@ -88,25 +89,25 @@ int main(void)
     char req_buffer[traffic_light_LightsGPIO_entity_req_arena_size];
     struct nk_arena req_arena = NK_ARENA_INITIALIZER(req_buffer,
                                         req_buffer + sizeof(req_buffer));
-    fprintf(stderr, "Hello I'm LightsGPIO-3\n");    
+
     /* Prepare response structures: constant part and arena. */
     traffic_light_LightsGPIO_entity_res res;
     char res_buffer[traffic_light_LightsGPIO_entity_res_arena_size];
     struct nk_arena res_arena = NK_ARENA_INITIALIZER(res_buffer,
                                         res_buffer + sizeof(res_buffer));
-    fprintf(stderr, "Hello I'm LightsGPIO-4\n");
+
     /**
      * Initialize mode component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased.
      */
     traffic_light_CMode_component component;
     traffic_light_CMode_component_init(&component, CreateIModeImpl(0x1000000));
-    fprintf(stderr, "Hello I'm LightsGPIO-5\n");
     /* Initialize lights gpio entity dispatcher. */
     traffic_light_LightsGPIO_entity entity;
     traffic_light_LightsGPIO_entity_init(&entity, &component);
 
     fprintf(stderr, "Hello I'm LightsGPIO\n");
+
 
     NkKosTransport transport2;
     struct traffic_light_IPing_proxy proxy2;
@@ -169,9 +170,11 @@ int main(void)
                                &res_arena) != NK_EOK) {
             fprintf(stderr, "nk_transport_reply error\n");
         }
-
+        
         /* DiagnosticSystem Test loop. */
-        req2.value = traffic_light_IPing_DiagnisticMsg;
+        static const nk_uint32_t tl_diagnostics = traffic_light_IPing_DiagnisticMsg;
+
+        req2.value = req.lightsGpio_mode.FMode.value + tl_diagnostics;
         /**
         * Call Mode interface method.
         * Lights GPIO will be sent a request for calling Mode interface method
@@ -195,6 +198,7 @@ int main(void)
         }
         else
             fprintf(stderr, "Failed to call traffic_light.DiagnosticSystem.Ping()\n");
+
     }
     while (true);
 

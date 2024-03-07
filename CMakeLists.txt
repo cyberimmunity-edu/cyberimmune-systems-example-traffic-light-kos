@@ -20,9 +20,9 @@ nk_build_cdl_files (traffic_light_cdl_files IDL_TARGET traffic_light_idl_files N
 nk_build_edl_files (traffic_light_lights_gpio_edl_files CDL_TARGET traffic_light_cdl_files NK_MODULE "traffic_light" EDL "resources/LightsGPIO.edl")
 nk_build_edl_files (traffic_light_control_system_edl_files NK_MODULE "traffic_light" EDL "resources/ControlSystem.edl")
 nk_build_edl_files (traffic_light_diagnostic_system_edl_files CDL_TARGET traffic_light_cdl_files NK_MODULE "traffic_light" EDL "resources/DiagnosticSystem.edl")
-#nk_build_edl_files (traffic_light_communication_system_edl_files NK_MODULE "traffic_light" EDL "resources/CommunicationSystem.edl")
+nk_build_edl_files (traffic_light_communication_system_edl_files NK_MODULE "traffic_light" EDL "resources/CommunicationSystem.edl")
 
-#add_subdirectory (communication_system)
+add_subdirectory (communication_system)
 add_subdirectory (diagnostic_system)
 add_subdirectory (control_system)
 add_subdirectory (lights_gpio)

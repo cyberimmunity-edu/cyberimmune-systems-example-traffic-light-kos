@@ -1,5 +1,0 @@
-entity traffic_light.CommunicationSystem
-
-components {
-    communications : traffic_light.CMode
-}

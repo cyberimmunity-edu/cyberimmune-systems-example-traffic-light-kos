@@ -16,15 +16,12 @@ entities:
 
 # The `DiagnosticSystem` entity can call `ControlSystem`.
 - name: traffic_light.DiagnosticSystem
-  connections:
-  - target: traffic_light.ControlSystem
-    id: diagnostic_control_systems_connection
 @INIT_DiagnosticSystem_ENTITY_CONNECTIONS@
 
 # The `CommunicationSystem` entity can call `ControlSystem`.
-#- name: traffic_light.CommunicationSystem
-#  connections:
-#  - target: traffic_light.ControlSystem
-#    id: communication_control_systems_connection
-#@INIT_CommunicationSystem_ENTITY_CONNECTIONS@
+- name: traffic_light.CommunicationSystem
+  connections:
+  - target: traffic_light.ControlSystem
+    id: control_system_connection_with_communication
+@INIT_CommunicationSystem_ENTITY_CONNECTIONS@
 

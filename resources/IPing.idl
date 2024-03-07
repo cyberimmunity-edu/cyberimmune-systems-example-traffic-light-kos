@@ -2,7 +2,7 @@
 
 package traffic_light.IPing
 
-const UInt32 DiagnisticMsg          = 123;
+const UInt32 DiagnisticMsg          = 0x010;
 
 
 interface {

@@ -25,7 +25,6 @@ static nk_err_t FPing_impl(struct traffic_light_IPing *self,
                           traffic_light_IPing_FPing_res *res,
                           struct nk_arena *res_arena)
 {
-    fprintf(stderr, "Hello I'm DiagnosticSystem FPing_impl\n");
     IPingImpl *impl = (IPingImpl *)self;
     /**
      * Increment value in control system request by
@@ -42,7 +41,6 @@ static nk_err_t FPing_impl(struct traffic_light_IPing *self,
  */
 static struct traffic_light_IPing *CreateIPingImpl(rtl_uint32_t step)
 {
-    fprintf(stderr, "Hello I'm DiagnosticSystem CreateIPingImpl\n");
     /* Table of implementations of IPing interface methods. */
     static const struct traffic_light_IPing_ops ops = {
         .FPing = FPing_impl
@@ -61,22 +59,19 @@ static struct traffic_light_IPing *CreateIPingImpl(rtl_uint32_t step)
 /* DiagnosticSystem entry point. */
 int main(void)
 {
-    fprintf(stderr, "Hello I'm DiagnosticSystem00\n");
     NkKosTransport transport;
     ServiceId iid;
 
-    fprintf(stderr, "Hello I'm DiagnosticSystem0\n");
 
     /* Get DiagnosticSystem IPC handle of "DiagnosticSystem_connection". */
     Handle handle = ServiceLocatorRegister("diagnostic_system_connection", NULL, 0, &iid);
     assert(handle != INVALID_HANDLE);
 
-    fprintf(stderr, "Hello I'm DiagnosticSystem1\n");
 
     /* Initialize transport to client. */
     NkKosTransport_Init(&transport, handle, NK_NULL, 0);
 
-    fprintf(stderr, "Hello I'm DiagnosticSystem2\n");
+
 
     /* Prepare the structures of the request to the DiagnosticSystem entity: constant
      * part and arena. Because none of the methods of the DiagnosticSystem entity has
@@ -89,19 +84,18 @@ int main(void)
     char req_buffer[traffic_light_DiagnosticSystem_entity_req_arena_size];
     struct nk_arena req_arena = NK_ARENA_INITIALIZER(req_buffer, req_buffer + sizeof(req_buffer));
 
-    fprintf(stderr, "Hello I'm DiagnosticSystem3\n");
+
     /* Prepare response structures: constant part and arena. */
     traffic_light_DiagnosticSystem_entity_res res;
     char res_buffer[traffic_light_DiagnosticSystem_entity_res_arena_size];
     struct nk_arena res_arena = NK_ARENA_INITIALIZER(res_buffer, res_buffer + sizeof(res_buffer));
 
-    fprintf(stderr, "Hello I'm DiagnosticSystem4\n");
+
     /* Initialize Ping component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased. */
     traffic_light_CPing_component component;
     traffic_light_CPing_component_init(&component, CreateIPingImpl(0x1000000));
 
-    fprintf(stderr, "Hello I'm DiagnosticSystem5\n");
     /* Initialize DiagnosticSystem entity dispatcher. */
     traffic_light_DiagnosticSystem_entity entity;
     traffic_light_DiagnosticSystem_entity_init(&entity, &component);
