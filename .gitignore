@@ -1,2 +1,6 @@
 build
 KasperskyOS-Community-Edition_1.1.1.40_en.deb
+.vscode
+Pipfile
+Pipfile.lock
+sdk-examples

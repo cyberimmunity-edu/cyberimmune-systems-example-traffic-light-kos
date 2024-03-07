@@ -1,6 +1,4 @@
-/* Security configuration of the "traffic light" example. */
-/* nk.basic._ is required for comparison operations support in policies, like != below */
-use nk.basic._
+/* Security configuration of the "echo" example. */
 
 /* Definition of the execute interface. */
 execute: kl.core.Execute
@@ -9,77 +7,94 @@ execute: kl.core.Execute
 use nk.base._
 
 /* Declaration of entities. */
+
+use EDL echo.Client
+use EDL echo.Client2
+use EDL echo.Connector
+use EDL echo.Server
+
 use EDL Einit
 use EDL kl.core.Core
+use EDL kl.VfsRamFs
+use EDL kl.VfsSdCardFs
+use EDL kl.VfsNet
+use EDL kl.rump.Dhcpcd
+use EDL kl.drivers.SDCard
+use EDL kl.drivers.RAMDisk
+use EDL kl.drivers.BSP
+use EDL kl.drivers.GPIO
 
-use EDL traffic_light.ControlSystem
-use EDL traffic_light.LightsGPIO
 
 /* Execution of entities allowed. */
 execute {
     grant ()
 }
 
-/* Request messages allowed. */
-/*
-request src=traffic_light.ControlSystem {
-    grant ()
+request
+{
+    /* Allows the tasks to send requests to the KasperskyOS kernel. */
+    match dst = kl.core.Core
+    {
+        match src = Einit                                 { grant () }
+        match src = echo.Client2                          { grant () }
+        match src = echo.Client                           { grant () }
+        match src = echo.Connector                        { grant () }
+        match src = echo.Server                           { grant () }
+        match src = kl.drivers.BSP                        { grant () }
+        match src = kl.drivers.GPIO                       { grant () }
+        match src = kl.rump.Dhcpcd                        { grant () }
+        match src = kl.drivers.RAMDisk                    { grant () }
+        match src = kl.VfsNet                             { grant () }
+        match src = kl.VfsRamFs                           { grant () }
+        match src = kl.VfsSdCardFs                        { grant () }
+        match src = kl.drivers.SDCard                     { grant () }
+        match src = kl.VfsRamFs                           { grant () }
+        match src = kl.VfsRamFs                           { grant () }
+    }
+
+    /* Allows for initialization calls */
+    match dst = Einit
+    {
+        match src = echo.Server                           { grant () }
+        match src = echo.Client2                          { grant () }
+        match src = echo.Client                           { grant () }
+        match src = echo.Connector                        { grant () }
+    }
+
+    /* Allows all requests from the core */
+    match src = kl.core.Core                              { grant () }
+
+    /* Allows all requests from initialization */
+    match src = Einit                                     { grant () }
+
+    /* Strict access configuration for the communication with the server:
+       we additionally check source, endpoint and used for the request method
+     */
+    match dst = echo.Server endpoint = Server.ping method = Ping
+    {
+        match src = echo.Client2                          { grant () }
+        match src = echo.Client                           { grant () }
+        match src = echo.Connector                        { grant () }
+    }
+
+    match src = echo.Connector 
+    {
+        match dst = kl.VfsSdCardFs                        { grant () }
+        match dst = kl.VfsRamFs                           { grant () }
+        match dst = kl.VfsNet                             { grant () }
+    }
+    match src = kl.rump.Dhcpcd, dst = kl.VfsRamFs         { grant () }
+    match src = kl.rump.Dhcpcd, dst = kl.VfsNet           { grant () }
+    match src = kl.VfsSdCardFs, dst = kl.drivers.SDCard   { grant () }
+    match src = kl.VfsRamFs, dst = kl.drivers.RAMDisk     { grant () }
 }
-*/
 
-
-request src=traffic_light.ControlSystem dst=kl.core.Core {
-    grant ()
-}
-
-
-request src=traffic_light.ControlSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpio.mode 
-    method=FMode {
-        grant()
-}
-
-/* Разрешены все комбинации кроме зеленый-зеленый и зеленый-зеленый в комбинации с другими цветами*/
-/* Запрещены комбинации зеленый-только желтый и зеленый с красным на любом направлении*/
-request src=traffic_light.ControlSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpio.mode 
-    method=FMode {
-        assert ((message.value < 0x404 && message.value != 0x206 && message.value != 0x20e)
-        || (message.value >= 0x900 && message.value < 0xc04 && message.value != 0xa06 && message.value != 0xa0e)
-        || message.value == 0x601 || message.value == 0x603 || message.value == 0x609 || message.value == 0x60a || message.value == 0x60b
-        || message.value == 0xe01 || message.value == 0xe03 || message.value == 0xe09 || message.value == 0xe0a || message.value == 0xe0b)
-}
-
-
-request src=Einit {
-    grant ()
-}
-
-request src=kl.core.Core {
-    grant ()
-}
-
-request src=traffic_light.LightsGPIO dst=kl.core.Core {
-    grant ()
-}
-
-
-/* Response messages allowed. */
+/* All response messages allowed. */
 response {
     grant ()
 }
 
-/*
-response src=traffic_light.LightsGPIO 
-    dst=traffic_light.ControlSystem 
-    endpoint=lightsGpio.mode 
-    method=FMode {
-        assert (message.result < 0x1000404)
-}
-*/
-
+/* Error messages allowed */
 error {
     grant ()
 }
