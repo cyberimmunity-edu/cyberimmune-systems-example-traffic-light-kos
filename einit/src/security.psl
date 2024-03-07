@@ -14,8 +14,6 @@ use EDL kl.core.Core
 
 use EDL traffic_light.ControlSystem
 use EDL traffic_light.LightsGPIO
-use EDL traffic_light.DiagnosticSystem
-/*use EDL traffic_light.Connection */
 
 /* Execution of entities allowed. */
 execute {
@@ -28,22 +26,6 @@ request src=traffic_light.ControlSystem {
     grant ()
 }
 */
-
-/* Request messages DiagnosticSystem-LightsGPIO allowed. */
-request src=traffic_light.DiagnosticSystem 
-    dst=traffic_light.LightsGPIO 
-    endpoint=lightsGpioDiagnostics.ping
-    method=Ping {
-        grant()
-}
-
-/* Request messages Connection-ControlSystem allowed. */
-request src=traffic_light.Connection 
-    dst=traffic_light.ControlSystem 
-    endpoint=control.ping
-    method=Ping {
-        grant()
-}
 
 
 request src=traffic_light.ControlSystem dst=kl.core.Core {
@@ -97,14 +79,6 @@ response src=traffic_light.LightsGPIO
         assert (message.result < 0x1000404)
 }
 */
-
-response src=traffic_light.LightsGPIO 
-    dst=traffic_light.DiagnosticSystem 
-    endpoint=lightsGpio.mode 
-    method=Ping {
-        grant ()
-}
-
 
 error {
     grant ()

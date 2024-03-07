@@ -10,9 +10,6 @@
 /* EDL description of the LightsGPIO entity. */
 #include <traffic_light/LightsGPIO.edl.h>
 
-/* Description of the server interface used by the `client` entity. */
-#include <traffic_light/IPing.idl.h>
-
 #include <assert.h>
 
 /* Type of interface implementing object. */
@@ -91,6 +88,7 @@ int main(void)
     char res_buffer[traffic_light_LightsGPIO_entity_res_arena_size];
     struct nk_arena res_arena = NK_ARENA_INITIALIZER(res_buffer,
                                         res_buffer + sizeof(res_buffer));
+
     /**
      * Initialize mode component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased.
@@ -101,24 +99,6 @@ int main(void)
     /* Initialize lights gpio entity dispatcher. */
     traffic_light_LightsGPIO_entity entity;
     traffic_light_LightsGPIO_entity_init(&entity, &component);
-
-    /**
-     * Get Runtime Interface ID (RIID) for interface traffic_light.Mode.mode.
-     * Here mode is the name of the traffic_light.Mode component instance,
-     * traffic_light.Mode.mode is the name of the Mode interface implementation.
-     */
-    nk_iid_t riid = ServiceLocatorGetRiid(handle, "diagnostics.ping");
-    assert(riid != INVALID_RIID);
-    /**
-     * Initialize proxy object by specifying transport (&transport)
-     * and lights gpio interface identifier (riid). Each method of the
-     * proxy object will be implemented by sending a request to the lights gpio.
-     */
-    traffic_light_IPing_proxy_init(&proxy, &transport.base, riid);
-
-    /* Request and response structures */
-    traffic_light_IPing_FPing_req req;
-    traffic_light_IPing_FPing_res res;
 
     fprintf(stderr, "Hello I'm LightsGPIO\n");
 

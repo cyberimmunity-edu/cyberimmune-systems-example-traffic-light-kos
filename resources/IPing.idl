@@ -1,8 +1,0 @@
-/* Package with an "IPing" interface declaration. */
-
-package traffic_light.IPing
-
-interface {
-    /* IPing interface method */
-    FPing(in UInt32 value, out UInt32 result);
-}

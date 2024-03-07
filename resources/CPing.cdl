@@ -1,8 +1,0 @@
-/* Definition of the `CPing` component. */
-
-component traffic_light.CPing
-
-endpoints {
-    /* Declaration of a named implementation of the "IPing" interface. */
-    ping : traffic_light.IPing
-}

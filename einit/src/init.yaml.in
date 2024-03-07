@@ -7,47 +7,8 @@ entities:
     id: lights_gpio_connection
 @INIT_ControlSystem_ENTITY_CONNECTIONS@
 
+
 # The `LightsGPIO` entity can only respond to requests.
 - name: traffic_light.LightsGPIO
 @INIT_LightsGPIO_ENTITY_CONNECTIONS@
 
-# The `LightsGPIO` entity can call `DiagnosticSystem`.
-- name: traffic_light.LightsGPIO
-  connections:
-  - target: traffic_light.DiagnosticSystem
-    id: lights_gpio_connection
-@INIT_LightsGPIO_ENTITY_CONNECTIONS@
-
-# The `DiagnosticSystem` entity can only respond to requests.
-- name: traffic_light.DiagnosticSystem
-@INIT_DiagnosticSystem_ENTITY_CONNECTIONS@
-
-/*
-# The `DiagnosticSystem` entity can call `LightsGPIO`.
-- name: traffic_light.DiagnosticSystem
-  connections:
-  - target: traffic_light.LightsGPIO
-    id: lights_gpio_connection
-@INIT_DiagnosticSystem_ENTITY_CONNECTIONS@
-
-# The `Connection` entity can call `ControlSystem`.
-- name: traffic_light.Connection
-  connections:
-  - target: traffic_light.ControlSystem
-    id: control_system_connection
-@INIT_Connection_ENTITY_CONNECTIONS@
-
-# The `ControlSystem` entity can call `Connection`.
-- name: traffic_light.ControlSystem
-  connections:
-  - target: traffic_light.ControlSystem
-    id: connection_connection
-@INIT_ControlSystem_ENTITY_CONNECTIONS@
-
-# The `ControlSystem` entity can call `DiagnosticSystem`.
-- name: traffic_light.ControlSystem
-  connections:
-  - target: traffic_light.ControlSystem
-    id: diagnostic_system_connection
-@INIT_ControlSystem_ENTITY_CONNECTIONS@
-*/
