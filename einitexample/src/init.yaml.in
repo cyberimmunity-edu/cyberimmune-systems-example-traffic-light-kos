@@ -1,0 +1,34 @@
+entities:
+
+# The `client` entity can call `server`.
+- name: echo.Client
+  connections:
+  - target: echo.Server
+    id: server_connection
+@INIT_client_ENTITY_CONNECTIONS@
+
+
+# The `client2` entity can call `server`.
+- name: echo.Client2
+  connections:
+  - target: echo.Server
+    id: server_connection
+@INIT_client2_ENTITY_CONNECTIONS@
+
+
+# The `connector` entity can call `server`.
+- name: echo.Connector
+  env:
+    VFS_NETWORK_BACKEND: client:kl.VfsNet
+  connections:
+  - target: echo.Server
+    id: server_connection
+  - target: kl.VfsNet
+    id: kl.VfsNet    
+@INIT_connector_ENTITY_CONNECTIONS+@
+
+# The `server` entity can only respond to requests.
+- name: echo.Server
+@INIT_server_ENTITY_CONNECTIONS@
+
+@INIT_EXTERNAL_ENTITIES@

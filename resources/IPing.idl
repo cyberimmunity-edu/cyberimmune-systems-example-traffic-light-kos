@@ -1,0 +1,11 @@
+/* Package with an "IPing" interface declaration. */
+
+package traffic_light.IPing
+
+const UInt32 DiagnisticMsg          = 0x010;
+
+
+interface {
+    /* IPing interface method */
+    FPing(in UInt32 value, out UInt32 result);
+}

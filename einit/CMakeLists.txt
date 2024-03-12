@@ -3,18 +3,12 @@ project (einit)
 # Tools for using NK parser.
 include (platform/image)
 
-# Set compiler flags.
+# Set compile flags.
 project_header_default ("STANDARD_GNU_11:YES" "STRICT_WARNINGS:NO")
 
-
 # Define the ENTITIES variable with a list of entities.
-set (ENTITIES 
-     Client
-     Client2
-     Connector
-     Server
-     ${precompiled_vfsVfsNet}
-     ${rump_DHCPCD_ENTITY})
+set (ENTITIES ControlSystem LightsGPIO DiagnosticSystem 
+CommunicationSystem ${precompiled_vfsVfsNet} ${rump_DHCPCD_ENTITY})
 
 set (SECURITY_PSL_FILE    "src/security.psl")
 set (CONNECTIONS_CFG_FILE "src/init.yaml.in")
@@ -83,14 +77,13 @@ add_custom_target (${FS_IMAGE}
         -f   ${FS_IMG_FORMAT}
         -img ${FS_IMAGE})
 
-
 # KasperskyOS image for target hardware platform.
 build_kos_hw_image (kos-image
-        EINIT_ENTITY          EinitHw
-        CONNECTIONS_CFG       ${CONNECTIONS_CFG_FILE}
-        SECURITY_PSL          ${SECURITY_PSL_FILE}
-        IMAGE_FILES           ${ENTITIES}
-                              ${FILES})
+        EINIT_ENTITY EinitHw
+        CONNECTIONS_CFG "src/init.yaml.in"
+        SECURITY_PSL "src/security.psl"
+        IMAGE_FILES ${ENTITIES}
+        ${FILES})
 
 if (NOT ROOTFS_SDCARD)
     add_dependencies (kos-image ${FS_IMAGE})
@@ -99,15 +92,15 @@ endif ()
 # KasperskyOS image for QEMU with simulation targets (sim, gdbsim, gdb).
 build_kos_qemu_image (kos-qemu-image
         EINIT_ENTITY EinitQemu
-        CONNECTIONS_CFG       ${CONNECTIONS_CFG_FILE}
-        SECURITY_PSL          ${SECURITY_PSL_FILE}
-        QEMU_FLAGS            "${QEMU_FLAGS}"
-        QEMU_DEPENDENCIES     "${QEMU_DEPENDENCIES}"
-        IMAGE_FILES           ${ENTITIES}
-                              ${FILES})
+        CONNECTIONS_CFG "src/init.yaml.in"
+        SECURITY_PSL "src/security.psl"
+        QEMU_FLAGS "${QEMU_FLAGS}"
+        QEMU_DEPENDENCIES "${QEMU_DEPENDENCIES}"
+        IMAGE_FILES ${ENTITIES}
+        ${FILES})
 
 add_dependencies (kos-qemu-image ${FS_IMAGE})
 
 set_target_properties (EinitHw PROPERTIES LINK_FLAGS ${VULN_LDFLAGS})
 set_target_properties (EinitQemu PROPERTIES LINK_FLAGS ${VULN_LDFLAGS})
-                              
+

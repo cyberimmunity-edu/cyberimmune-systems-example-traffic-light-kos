@@ -7,7 +7,8 @@ develop:
 build-sim:
 	./cross-build.sh
 
-sim: build-sim
+sim:
+	./cross-build-sim.sh
 
 get-json-parser:
 	git clone https://github.com/json-parser/json-parser
