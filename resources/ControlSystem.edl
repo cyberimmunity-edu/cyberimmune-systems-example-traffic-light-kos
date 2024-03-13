@@ -1,5 +1,5 @@
 entity traffic_light.ControlSystem
 
 components {
-    controls : traffic_light.CMode
+    controls : traffic_light.CPing
 }

@@ -78,6 +78,7 @@ nk_build_edl_files (traffic_light_diagnostic_system_edl_files CDL_TARGET traffic
 nk_build_edl_files (traffic_light_communication_system_edl_files NK_MODULE "traffic_light" EDL "resources/CommunicationSystem.edl")
 
 add_subdirectory (communication_system)
+add_subdirectory (json-parser)
 add_subdirectory (diagnostic_system)
 add_subdirectory (control_system)
 add_subdirectory (lights_gpio)

@@ -73,22 +73,28 @@ request
     /* Strict access configuration for the communication with the server:
        we additionally check source, endpoint and used for the request method
      */
-    match dst = traffic_light.Server endpoint = Server.ping method = Ping
+    match dst = traffic_light.ControlSystem endpoint = controls.ping method = FPing
     {
-        match src = traffic_light.Client2                          { grant () }
-        match src = traffic_light.Client                           { grant () }
-        match src = traffic_light.Connector                        { grant () }
+        match src = traffic_light.CommunicationSystem              { grant () }
     }
 
-    match dst = traffic_light.ControlSystem endpoint = controls.mode method = FMode
+    match dst = traffic_light.DiagnosticSystem endpoint = diagnostics.ping method = FPing
     {
-        match src = traffic_light.Client2                          { grant () }
-        match src = traffic_light.Client                           { grant () }
-        match src = traffic_light.CommunicationSystem                        { grant () }
+        match src = traffic_light.LightsGPIO                       { grant () }
     }
-
-
-
+    
+    match dst = traffic_light.LightsGPIO endpoint = lightsGpio.mode method = FMode
+    {
+        match src=traffic_light.ControlSystem
+        {
+            assert ((message.value < 0x404 && message.value != 0x206 && message.value != 0x20e)
+            || (message.value >= 0x900 && message.value < 0xc04 && message.value != 0xa06 && message.value != 0xa0e)
+            || message.value == 0x601 || message.value == 0x603 || message.value == 0x609 || message.value == 0x60a || message.value == 0x60b
+            || message.value == 0xe01 || message.value == 0xe03 || message.value == 0xe09 || message.value == 0xe0a || message.value == 0xe0b)
+        }
+    }
+    
+    
     match src = traffic_light.CommunicationSystem 
     {
         match dst = kl.VfsSdCardFs                        { grant () }
@@ -131,16 +137,17 @@ request src=traffic_light.ControlSystem
     method=FPing {
         grant ()
 }
-*/
+
 request src=traffic_light.LightsGPIO 
     dst=traffic_light.DiagnosticSystem 
     endpoint=diagnostics.ping 
     method=FPing {
         grant ()
 }
+*/
 
 /* Разрешены все комбинации кроме зеленый-зеленый и зеленый-зеленый в комбинации с другими цветами*/
-/* Запрещены комбинации зеленый-только желтый и зеленый с красным на любом направлении*/
+/* Запрещены комбинации зеленый-только желтый и зеленый с красным на любом направлении
 request src=traffic_light.ControlSystem 
     dst=traffic_light.LightsGPIO 
     endpoint=lightsGpio.mode 
@@ -150,7 +157,7 @@ request src=traffic_light.ControlSystem
         || message.value == 0x601 || message.value == 0x603 || message.value == 0x609 || message.value == 0x60a || message.value == 0x60b
         || message.value == 0xe01 || message.value == 0xe03 || message.value == 0xe09 || message.value == 0xe0a || message.value == 0xe0b)
 }
-
+*/
 
 
 

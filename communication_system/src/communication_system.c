@@ -17,7 +17,7 @@
 #include <coresrv/sl/sl_api.h>
 
 /* Description of the server interface used by the `client` entity. */
-#include <traffic_light/Ping.idl.h>
+#include <traffic_light/IPing.idl.h>
 
 #include <assert.h>
 #include <json.h>
@@ -125,7 +125,7 @@ int get_traffic_light_configuration(void)
 int main(int argc, const char *argv[])
 {
     NkKosTransport transport;
-    struct traffic_light_Ping_proxy proxy;
+    struct traffic_light_IPing_proxy proxy;
     int               i;
     int               socketfd;
     struct            ifconf conf;
@@ -134,7 +134,7 @@ int main(int argc, const char *argv[])
     struct sockaddr * sa;
     bool              is_network_available;
 
-    fprintf(stderr, "%s Hello, I'm about to start working\n", LogPrefix);
+    fprintf(stderr, "%s Hello, I'm CommunicationSystem and about to start working\n", LogPrefix);
 
     is_network_available = wait_for_network();
 
@@ -178,26 +178,26 @@ int main(int argc, const char *argv[])
 
     /* Get the client IPC handle of the connection named
      * "server_connection". */
-    Handle handle = ServiceLocatorConnect("server_connection");
+    Handle handle = ServiceLocatorConnect("control_system_connection_with_communication");
     assert(handle != INVALID_HANDLE);
 
     /* Initialize IPC transport for interaction with the server entity. */
     NkKosTransport_Init(&transport, handle, NK_NULL, 0);
 
-    /* Get Runtime Interface ID (RIID) for interface traffic_light.Ping.ping.
-     * Here ping is the name of the traffic_light.Ping component instance,
-     * traffic_light.Ping.ping is the name of the Ping interface implementation. */
-    nk_iid_t riid = ServiceLocatorGetRiid(handle, "traffic_light.Ping.ping");
+    /* Get Runtime Interface ID (RIID) for interface traffic_light.IPing.ping.
+     * Here ping is the name of the traffic_light.IPing component instance,
+     * traffic_light.IPing.ping is the name of the Ping interface implementation. */
+    nk_iid_t riid = ServiceLocatorGetRiid(handle, "traffic_light.controls.ping");
     assert(riid != INVALID_RIID);
 
     /* Initialize proxy object by specifying transport (&transport)
      * and server interface identifier (riid). Each method of the
      * proxy object will be implemented by sending a request to the server. */
-    traffic_light_Ping_proxy_init(&proxy, &transport.base, riid);
+    traffic_light_IPing_proxy_init(&proxy, &transport.base, riid);
 
     /* Request and response structures */
-    traffic_light_Ping_Ping_req req;
-    traffic_light_Ping_Ping_res res;
+    traffic_light_IPing_FPing_req req;
+    traffic_light_IPing_FPing_res res;
 
     /* Test loop. */
     req.value = EXAMPLE_VALUE_TO_SEND;
@@ -210,19 +210,19 @@ int main(int argc, const char *argv[])
          * Server will be sent a request for calling Ping interface method
          * ping_comp.ping_impl with the value argument. Calling thread is locked
          * until a response is received from the server. */
-        if (traffic_light_Ping_Ping(&proxy.base, &req, NULL, &res, NULL) == rcOk)
+        if (traffic_light_IPing_FPing(&proxy.base, &req, NULL, &res, NULL) == rcOk)
 
         {
             /* Print result value from response
              * (result is the output argument of the Ping method). */
-            fprintf(stderr, "%s result = %d\n", LogPrefix, (int) res.result);
+            fprintf(stderr, "%s result4 = %d\n", LogPrefix, (int) res.result);
             /* Include received result value into value argument
              * to resend to server in next iteration. */
             req.value = res.result;
 
         }
         else
-            fprintf(stderr, "%s Failed to call traffic_light.Ping.Ping()\n", LogPrefix);
+            fprintf(stderr, "%s Failed to call traffic_light.IPing.FPing()\n", LogPrefix);
     }
 
     return EXIT_SUCCESS;

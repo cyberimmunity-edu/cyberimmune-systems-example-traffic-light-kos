@@ -8,3 +8,5 @@ project_header_default ("STANDARD_GNU_11:YES" "STRICT_WARNINGS:NO")
 
 add_executable (ControlSystem "src/control_system.c")
 add_dependencies (ControlSystem traffic_light_idl_files traffic_light_control_system_edl_files)
+
+set_target_properties (ControlSystem PROPERTIES LINK_FLAGS "-no-pie -Ttext 0xA00000")

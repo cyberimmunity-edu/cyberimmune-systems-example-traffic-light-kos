@@ -124,9 +124,9 @@ int main(void)
     NkKosTransport_Init(&transport2, handle2, NK_NULL, 0);
 
     /**
-     * Get Runtime Interface ID (RIID) for interface traffic_light.Mode.mode.
-     * Here mode is the name of the traffic_light.Mode component instance,
-     * traffic_light.Mode.mode is the name of the Mode interface implementation.
+     * Get Runtime Interface ID (RIID) for interface traffic_light.IPing.ping.
+     * Here ping is the name of the traffic_light.IPing component instance,
+     * traffic_light.IPing.ping is the name of the IPing interface implementation.
      */
     nk_iid_t riid2 = ServiceLocatorGetRiid(handle2, "diagnostics.ping");
     assert(riid2 != INVALID_RIID);

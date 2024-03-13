@@ -7,10 +7,10 @@
 #include <coresrv/nk/transport-kos.h>
 #include <coresrv/sl/sl_api.h>
 
-/* EDL description of the LightsGPIO entity. */
+/* EDL description of the ControlSystem entity. */
 #include <traffic_light/ControlSystem.edl.h>
 
-/* Description of the ControlSystem interface used by the `CommunicationSystem` entity. */
+/* Description of the LightGPIO interface used by the `ControlSystem` entity. */
 #include <traffic_light/IMode.idl.h>
 
 #include <assert.h>
@@ -18,19 +18,19 @@
 #define MODES_NUM 18
 
 /* Type of interface implementing object. */
-typedef struct IModeImpl {
-    struct traffic_light_IMode base;     /* Base interface of object */
+typedef struct IPingImpl {
+    struct traffic_light_IPing base;     /* Base interface of object */
     rtl_uint32_t step;                   /* Extra parameters */
-} IModeImpl;
+} IPingImpl;
 
-/* Mode method implementation. */
-static nk_err_t FMode_impl(struct traffic_light_IMode *self,
-                          const struct traffic_light_IMode_FMode_req *req,
+/* Ping method implementation. */
+static nk_err_t FPing_impl(struct traffic_light_IPing *self,
+                          const struct traffic_light_IPing_FPing_req *req,
                           const struct nk_arena *req_arena,
-                          traffic_light_IMode_FMode_res *res,
+                          traffic_light_IPing_FPing_res *res,
                           struct nk_arena *res_arena)
 {
-    IModeImpl *impl = (IModeImpl *)self;
+    IPingImpl *impl = (IPingImpl *)self;
     /**
      * Increment value in control system request by
      * one step and include into result argument that will be
@@ -41,18 +41,18 @@ static nk_err_t FMode_impl(struct traffic_light_IMode *self,
 }
 
 /**
- * IMode object constructor.
+ * IPing object constructor.
  * step is the number by which the input value is increased.
  */
-static struct traffic_light_IMode *CreateIModeImpl(rtl_uint32_t step)
+static struct traffic_light_IPing *CreateIPingImpl(rtl_uint32_t step)
 {
-    /* Table of implementations of IMode interface methods. */
-    static const struct traffic_light_IMode_ops ops = {
-        .FMode = FMode_impl
+    /* Table of implementations of IPing interface methods. */
+    static const struct traffic_light_IPing_ops ops = {
+        .FPing = FPing_impl
     };
 
     /* Interface implementing object. */
-    static struct IModeImpl impl = {
+    static struct IPingImpl impl = {
         .base = {&ops}
     };
 
@@ -61,13 +61,13 @@ static struct traffic_light_IMode *CreateIModeImpl(rtl_uint32_t step)
     return &impl.base;
 }
 
-/* Control system entity entry point. */
-int main(int argc, const char *argv[])
+/* Control system entity entry point. (int argc, const char *argv[]) */
+int main(void)
 {
     NkKosTransport transport;
     struct traffic_light_IMode_proxy proxy;
     int i;
-    static const nk_uint32_t tl_modes[MODES_NUM] = {
+    static const nk_uint32_t tl_Modes[MODES_NUM] = {
         traffic_light_IMode_Direction1Red + traffic_light_IMode_Direction2Red,
         traffic_light_IMode_Direction1Red + traffic_light_IMode_Direction1Yellow + traffic_light_IMode_Direction2Red,
         traffic_light_IMode_Direction1Green + traffic_light_IMode_Direction2Red,
@@ -101,9 +101,9 @@ int main(int argc, const char *argv[])
     NkKosTransport_Init(&transport, handle, NK_NULL, 0);
 
     /**
-     * Get Runtime Interface ID (RIID) for interface traffic_light.Mode.mode.
-     * Here mode is the name of the traffic_light.Mode component instance,
-     * traffic_light.Mode.mode is the name of the Mode interface implementation.
+     * Get Runtime Interface ID (RIID) for interface traffic_light.IMode.mode.
+     * Here mode is the name of the traffic_light.IMode component instance,
+     * traffic_light.IMode.mode is the name of the Mode interface implementation.
      */
     nk_iid_t riid = ServiceLocatorGetRiid(handle, "lightsGpio.mode");
     assert(riid != INVALID_RIID);
@@ -147,10 +147,10 @@ int main(int argc, const char *argv[])
     char res_buffer[traffic_light_ControlSystem_entity_res_arena_size];
     struct nk_arena res_arena = NK_ARENA_INITIALIZER(res_buffer, res_buffer + sizeof(res_buffer));
 
-    /* Initialize Mode component dispatcher. 3 is the value of the step,
+    /* Initialize Ping component dispatcher. 3 is the value of the step,
      * which is the number by which the input value is increased. */
-    traffic_light_CMode_component component;
-    traffic_light_CMode_component_init(&component, CreateIModeImpl(0x1000000));
+    traffic_light_CPing_component component;
+    traffic_light_CPing_component_init(&component, CreateIPingImpl(0x1000000));
 
     /* Initialize ControlSystem entity dispatcher. */
     traffic_light_ControlSystem_entity entity;
@@ -170,8 +170,8 @@ int main(int argc, const char *argv[])
         if (nk_transport_recv(&transport2.base, &req2.base_, &req_arena) != NK_EOK) {
             fprintf(stderr, "nk_transport_recv error\n");
         } else {
-            /* Handle received request by calling implementation Mode
-             * of the requested FMode interface method. */
+            /* Handle received request by calling implementation Ping
+             * of the requested FPing interface method. */
             traffic_light_ControlSystem_entity_dispatch(&entity, &req2.base_, &req_arena, &res2.base_, &res_arena);
         }
 
@@ -185,11 +185,11 @@ int main(int argc, const char *argv[])
         req.value = 0;
         for (i = 0; i < MODES_NUM; i++)
         {
-            req.value = tl_modes[i];
+            req.value = tl_Modes[i];
             /**
-            * Call Mode interface method.
-            * Lights GPIO will be sent a request for calling Mode interface method
-            * mode_comp.mode_impl with the value argument. Calling thread is locked
+            * Call Ping interface method.
+            * Lights GPIO will be sent a request for calling Ping interface method
+            * Ping_comp.Ping_impl with the value argument. Calling thread is locked
             * until a response is received from the lights gpio.
             */
             if (traffic_light_IMode_FMode(&proxy.base, &req, NULL, &res, NULL) == rcOk)
@@ -197,7 +197,7 @@ int main(int argc, const char *argv[])
             {
                 /**
                 * Print result value from response
-                * (result is the output argument of the Mode method).
+                * (result is the output argument of the Ping method).
                 */
                 fprintf(stderr, "result = %0x\n", (int) res.result);
                 /**
@@ -208,7 +208,7 @@ int main(int argc, const char *argv[])
 
             }
             else
-                fprintf(stderr, "Failed to call traffic_light.LightGPIO.Mode()\n");
+                fprintf(stderr, "Failed to call traffic_light.IMode.FMode()\n");
         }
 
     }
