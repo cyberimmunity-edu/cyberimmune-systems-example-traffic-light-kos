@@ -1,0 +1,5 @@
+component traffic_light.CReport
+
+endpoints {
+    report : traffic_light.IReport
+}

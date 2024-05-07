@@ -1,0 +1,5 @@
+package traffic_light.IReport
+
+interface {
+    report(in UInt32 value, out UInt32 result);
+}
