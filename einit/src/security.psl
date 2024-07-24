@@ -20,11 +20,13 @@ execute {
     grant ()
 }
 
+
 /* Request messages allowed. */
+/*
 request src=traffic_light.ControlSystem {
     grant ()
 }
-
+*/
 
 request src=traffic_light.ControlSystem dst=kl.core.Core {
     grant ()
